@@ -1,3 +1,4 @@
+import ecg_simulator_window
 from settings import *
 from objects import LP, PP, Dictionary, FuzzyProject
 from functions import create_plot
@@ -366,6 +367,7 @@ class ControllerWindow(QWidget, controller_window_form.Ui_controller_window):
         self.is_loaded: bool | None = None
 
         self.button_calculate.clicked.connect(self.on_clicked_button_calculate)
+        self.button_ecg_simulator.clicked.connect(lambda: ecg_simulator_window.show())
         self.button_save.clicked.connect(self.on_clicked_button_save)
         self.button_exit.clicked.connect(self.close)
 
@@ -423,6 +425,21 @@ class ControllerWindow(QWidget, controller_window_form.Ui_controller_window):
         menu_window.show()
 
 
+class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
+    def __init__(self):
+        super(ECGSimulatorWindow, self).__init__()
+        self.setupUi(self)
+
+        self.source_window: QWidget | None = None
+        self.button_exit.clicked.connect(self.close)
+
+    def show(self):
+        super(ECGSimulatorWindow, self).show()
+
+    def closeEvent(self, a0):
+        super(ECGSimulatorWindow, self).closeEvent(a0)
+
+
 app = QApplication(sys.argv)
 app.setStyle("fusion")
 app.setPalette(palette())
@@ -434,6 +451,7 @@ dictionary_window = DictionaryWindow()
 lp_editor_window = LPEditorWindow()
 pp_editor_window = PPEditorWindow()
 controller_window = ControllerWindow()
+ecg_simulator_window = ECGSimulatorWindow()
 
 menu_window.show()
 app.exec_()

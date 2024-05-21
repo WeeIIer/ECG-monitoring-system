@@ -9,3 +9,4 @@ Imports (`pip install ...`):
 - `shapely`
 - `pyqt5`  
 - `superqt`
+- `neurokit2`

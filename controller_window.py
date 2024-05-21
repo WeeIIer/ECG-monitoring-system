@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'D:\VADIM\Python\SFedU\third_term\knowledge_representation\lab_2\ui\controller_window.ui'
+# Form implementation generated from reading ui file 'D:\VADIM\Python\SFedU\diploma\ECG-monitoring-system\ui\controller_window.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.10
 #
@@ -57,6 +57,21 @@ class Ui_controller_window(object):
         self.button_calculate.setIconSize(QtCore.QSize(24, 24))
         self.button_calculate.setObjectName("button_calculate")
         self.horizontalLayout_3.addWidget(self.button_calculate)
+        self.button_ecg_simulator = QtWidgets.QPushButton(self.groupBox_3)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.button_ecg_simulator.sizePolicy().hasHeightForWidth())
+        self.button_ecg_simulator.setSizePolicy(sizePolicy)
+        self.button_ecg_simulator.setMinimumSize(QtCore.QSize(150, 40))
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.button_ecg_simulator.setFont(font)
+        self.button_ecg_simulator.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.button_ecg_simulator.setIconSize(QtCore.QSize(24, 24))
+        self.button_ecg_simulator.setObjectName("button_ecg_simulator")
+        self.horizontalLayout_3.addWidget(self.button_ecg_simulator)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
         self.button_save = QtWidgets.QPushButton(self.groupBox_3)
@@ -225,6 +240,7 @@ class Ui_controller_window(object):
         controller_window.setWindowTitle(_translate("controller_window", "Нечёткий регулятор"))
         self.groupBox_3.setTitle(_translate("controller_window", "Панель управления"))
         self.button_calculate.setText(_translate("controller_window", "Вычислить"))
+        self.button_ecg_simulator.setText(_translate("controller_window", "ЭКГ-симулятор"))
         self.button_save.setText(_translate("controller_window", "Сохранить"))
         self.button_exit.setText(_translate("controller_window", "Закрыть"))
         self.groupBox_2.setTitle(_translate("controller_window", "Информационные атрибуты (вход)"))
