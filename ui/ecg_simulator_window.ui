@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>724</width>
-    <height>662</height>
+    <width>661</width>
+    <height>638</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -224,13 +224,13 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>400</width>
+           <width>0</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
+           <width>450</width>
            <height>16777215</height>
           </size>
          </property>
@@ -260,6 +260,12 @@
             </property>
             <item>
              <widget class="QListWidget" name="list_ecg_content">
+              <property name="minimumSize">
+               <size>
+                <width>250</width>
+                <height>0</height>
+               </size>
+              </property>
               <item>
                <property name="text">
                 <string>Зубец P [продолжительность]</string>
@@ -343,48 +349,102 @@
              </widget>
             </item>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_22">
-              <property name="spacing">
-               <number>5</number>
+             <widget class="QListWidget" name="list_ecg_leads">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
               </property>
               <item>
-               <widget class="QTextEdit" name="text_ecg_info"/>
+               <property name="text">
+                <string>I</string>
+               </property>
               </item>
               <item>
-               <widget class="QPushButton" name="button_ecg_blabla">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>150</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
-                <property name="cursor">
-                 <cursorShape>PointingHandCursor</cursorShape>
-                </property>
-                <property name="text">
-                 <string>button</string>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>24</width>
-                  <height>24</height>
-                 </size>
-                </property>
-               </widget>
+               <property name="text">
+                <string>II</string>
+               </property>
               </item>
-             </layout>
+              <item>
+               <property name="text">
+                <string>III</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>aVR</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>aVL</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>aVF</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>V1</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>V2</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>V3</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>V4</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>V5</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>V6</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTextEdit" name="text_ecg_info">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::NoContextMenu</enum>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -401,18 +461,18 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>400</width>
+           <width>0</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>16777215</width>
+           <width>450</width>
            <height>16777215</height>
           </size>
          </property>
          <property name="title">
-          <string>Основная информация</string>
+          <string>Результаты</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout">
           <property name="spacing">
@@ -498,36 +558,6 @@
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_20">
-            <property name="spacing">
-             <number>5</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="label_15">
-              <property name="text">
-               <string>Водитель сердечного ритма</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="edit_pacemaker">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>21</height>
-               </size>
-              </property>
-              <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
-              </property>
-              <property name="readOnly">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
            <layout class="QVBoxLayout" name="verticalLayout_25">
             <property name="spacing">
              <number>5</number>
@@ -570,7 +600,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox_2">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>

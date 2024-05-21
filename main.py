@@ -1,3 +1,7 @@
+import matplotlib.axes
+import matplotlib.pyplot as plt
+import pandas.core.frame
+
 import ecg_simulator_window
 from settings import *
 from objects import LP, PP, Dictionary, FuzzyProject
@@ -430,8 +434,66 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         super(ECGSimulatorWindow, self).__init__()
         self.setupUi(self)
 
-        self.source_window: QWidget | None = None
+        self.button_generate.clicked.connect(self.on_clicked_button_generate)
         self.button_exit.clicked.connect(self.close)
+
+        self.list_ecg_content.itemClicked.connect(self.on_item_clicked_list_content)
+        self.list_ecg_leads.itemClicked.connect(self.on_item_clicked_list_leads)
+
+        self.sampling_rate = 1000
+        self.ecg_data: pandas.DataFrame | None = None
+        self.current_lead = None
+        self.current_content_item = None
+
+    def on_item_clicked_list_content(self):
+        self.current_content_item = self.list_ecg_content.currentRow()
+        self.ecg_process()
+
+    def on_item_clicked_list_leads(self):
+        self.current_lead = self.list_ecg_leads.currentItem().text()
+        self.ecg_process()
+
+    def on_clicked_button_generate(self):
+        self.load_ecg_data()
+
+    def load_ecg_data(self):
+        self.ecg_data = nk.ecg_simulate(duration=10, method="multileads", sampling_rate=self.sampling_rate)
+
+        nk.signal_plot(self.ecg_data, subplots=True)
+
+        plt.gca().set_xlabel("")
+        fig = plt.gcf()
+
+        fig.set_size_inches(20, 12, forward=True)
+        fig.savefig("ECG_plot.png", transparent=True, bbox_inches="tight")
+
+        self.label_plot.clear()
+        self.label_plot.setPixmap(QPixmap("ECG_plot.png"))
+
+    def ecg_process(self):
+        if not (self.current_lead and self.current_content_item is not None):
+            print("no")
+            return None
+        print("yes")
+
+        keys = (
+            "ECG_P_Peaks",
+            "ECG_P_Peaks",
+            "ECG_Q_Peaks",
+            "ECG_Q_Peaks",
+            "ECG_R_Peaks",
+            "ECG_R_Peaks",
+            "ECG_S_Peaks",
+            "ECG_S_Peaks",
+            "ECG_T_Peaks",
+            "ECG_T_Peaks"
+        )
+
+        signals, info = nk.ecg_process(self.ecg_data[self.current_lead], sampling_rate=self.sampling_rate)
+
+        self.text_ecg_info.clear()
+        for peak in info[keys[self.current_content_item]]:
+            self.text_ecg_info.append(str(peak))
 
     def show(self):
         super(ECGSimulatorWindow, self).show()

@@ -8,6 +8,7 @@ from typing import Iterator, Iterable
 import shapely
 from datetime import datetime
 import neurokit2 as nk
+import pandas
 
 from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QHeaderView, QTableWidgetItem, QFileDialog, QCheckBox
 from PyQt5.QtGui import QPixmap, QPalette, QColor, QCursor, QFont
