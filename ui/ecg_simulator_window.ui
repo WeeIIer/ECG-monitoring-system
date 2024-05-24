@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>661</width>
-    <height>638</height>
+    <width>691</width>
+    <height>676</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -259,192 +259,234 @@
              <number>10</number>
             </property>
             <item>
-             <widget class="QListWidget" name="list_ecg_content">
-              <property name="minimumSize">
-               <size>
-                <width>250</width>
-                <height>0</height>
-               </size>
+             <layout class="QVBoxLayout" name="verticalLayout_26">
+              <property name="spacing">
+               <number>5</number>
               </property>
               <item>
-               <property name="text">
-                <string>Зубец P [продолжительность]</string>
-               </property>
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>Отведение</string>
+                </property>
+               </widget>
               </item>
               <item>
-               <property name="text">
-                <string>Зубец P [амплитуда]</string>
-               </property>
+               <widget class="QListWidget" name="list_ecg_leads">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>I</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>II</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>III</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>aVR</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>aVL</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>aVF</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>V1</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>V2</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>V3</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>V4</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>V5</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>V6</string>
+                 </property>
+                </item>
+               </widget>
               </item>
-              <item>
-               <property name="text">
-                <string>Зубец Q [продолжительность]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Зубец Q [амплитуда]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Зубец R [продолжительность]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Зубец R [амплитуда]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Зубец S [продолжительность]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Зубец S [амплитуда]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Зубец T [продолжительность]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Зубец T [амплитуда]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Сегмент PQ(R) [продолжительность]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Сегмент (R)ST [продолжительность]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Сегмент (R)ST [смещение]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Интервал P-Q(R) [продолжительность]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Интервал Q-T [продолжительность]</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Комплекс QRS [продолжительность]</string>
-               </property>
-              </item>
-             </widget>
+             </layout>
             </item>
             <item>
-             <widget class="QListWidget" name="list_ecg_leads">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>50</width>
-                <height>16777215</height>
-               </size>
+             <layout class="QVBoxLayout" name="verticalLayout_27">
+              <property name="spacing">
+               <number>5</number>
               </property>
               <item>
-               <property name="text">
-                <string>I</string>
-               </property>
+               <widget class="QLabel" name="label_20">
+                <property name="text">
+                 <string>Элемент</string>
+                </property>
+               </widget>
               </item>
               <item>
-               <property name="text">
-                <string>II</string>
-               </property>
+               <widget class="QListWidget" name="list_ecg_content">
+                <property name="minimumSize">
+                 <size>
+                  <width>250</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Зубец P [продолжительность]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Зубец P [амплитуда]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Зубец Q [продолжительность]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Зубец Q [амплитуда]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Зубец R [продолжительность]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Зубец R [амплитуда]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Зубец S [продолжительность]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Зубец S [амплитуда]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Зубец T [продолжительность]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Зубец T [амплитуда]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Сегмент PQ(R) [продолжительность]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Сегмент (R)ST [продолжительность]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Сегмент (R)ST [смещение]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Интервал P-Q(R) [продолжительность]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Интервал Q-T [продолжительность]</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Комплекс QRS [продолжительность]</string>
+                 </property>
+                </item>
+               </widget>
               </item>
-              <item>
-               <property name="text">
-                <string>III</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>aVR</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>aVL</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>aVF</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>V1</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>V2</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>V3</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>V4</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>V5</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>V6</string>
-               </property>
-              </item>
-             </widget>
+             </layout>
             </item>
             <item>
-             <widget class="QTextEdit" name="text_ecg_info">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+             <layout class="QVBoxLayout" name="verticalLayout_28">
+              <property name="spacing">
+               <number>5</number>
               </property>
-              <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
-              </property>
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-             </widget>
+              <item>
+               <widget class="QLabel" name="label_21">
+                <property name="text">
+                 <string>Значение</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTextEdit" name="text_ecg_info">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="contextMenuPolicy">
+                 <enum>Qt::NoContextMenu</enum>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </item>
            </layout>
           </item>

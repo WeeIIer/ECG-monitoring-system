@@ -1,5 +1,6 @@
 import matplotlib.axes
 import matplotlib.pyplot as plt
+import pandas as pd
 import pandas.core.frame
 
 import ecg_simulator_window
@@ -441,6 +442,7 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         self.list_ecg_leads.itemClicked.connect(self.on_item_clicked_list_leads)
 
         self.sampling_rate = 1000
+        self.duration = 10
         self.ecg_data: pandas.DataFrame | None = None
         self.current_lead = None
         self.current_content_item = None
@@ -457,12 +459,24 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         self.load_ecg_data()
 
     def load_ecg_data(self):
-        self.ecg_data = nk.ecg_simulate(duration=10, method="multileads", sampling_rate=self.sampling_rate)
+        ecg_mV = nk.ecg_simulate(duration=self.duration, method="multileads", sampling_rate=self.sampling_rate)
+        self.ecg_data = pd.DataFrame()
 
-        nk.signal_plot(self.ecg_data, subplots=True)
+        for lead, lead_data in ecg_mV.items():
+            self.ecg_data[lead] = pd.Series(value * 10 for value in lead_data)
+        print(self.ecg_data)
+
+        nk.signal_plot(self.ecg_data, subplots=True, sampling_rate=self.sampling_rate)
 
         plt.gca().set_xlabel("")
         fig = plt.gcf()
+
+        # signals, info = nk.ecg_process(self.ecg_data["I"], sampling_rate=self.sampling_rate)
+        # ax = fig.get_axes()
+
+        # for p in info["ECG_P_Peaks"]:
+        #     print(p)
+        # ax[0].axvline(y=4, color='r', linestyle='-')
 
         fig.set_size_inches(20, 12, forward=True)
         fig.savefig("ECG_plot.png", transparent=True, bbox_inches="tight")
@@ -471,32 +485,72 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         self.label_plot.setPixmap(QPixmap("ECG_plot.png"))
 
     def ecg_process(self):
-        if not (self.current_lead and self.current_content_item is not None):
-            print("no")
-            return None
-        print("yes")
-
-        keys = (
-            "ECG_P_Peaks",
-            "ECG_P_Peaks",
-            "ECG_Q_Peaks",
-            "ECG_Q_Peaks",
-            "ECG_R_Peaks",
-            "ECG_R_Peaks",
-            "ECG_S_Peaks",
-            "ECG_S_Peaks",
-            "ECG_T_Peaks",
-            "ECG_T_Peaks"
-        )
-
         signals, info = nk.ecg_process(self.ecg_data[self.current_lead], sampling_rate=self.sampling_rate)
 
         self.text_ecg_info.clear()
-        for peak in info[keys[self.current_content_item]]:
-            self.text_ecg_info.append(str(peak))
+        for value in self.ecg_info(info):
+            self.text_ecg_info.append(str(value))
+
+    def ecg_info(self, info: pd.Series):
+        """
+           Items
+        0  Зубец P [продолжительность]
+        1  Зубец P [амплитуда]
+        2  Зубец Q [продолжительность]
+        3  Зубец Q [амплитуда]
+        4  Зубец R [продолжительность]
+        5  Зубец R [амплитуда]
+        6  Зубец S [продолжительность]
+        7  Зубец S [амплитуда]
+        8  Зубец T [продолжительность]
+        9  Зубец T [амплитуда]
+        10 Сегмент PQ(R) [продолжительность]
+        11 Сегмент (R)ST [продолжительность]
+        12 Сегмент (R)ST [смещение]
+        13 Интервал P-Q(R) [продолжительность]
+        14 Интервал Q-T [продолжительность]
+        15 Комплекс QRS [продолжительность]
+        """
+
+        item = self.current_content_item
+        labels = "PPQQRRSSTT"
+        lead_signal = self.ecg_data[self.current_lead]
+
+        to_sec = lambda Hz: Hz / self.sampling_rate
+        nan_to_zero = lambda value: 0 if pd.isna(value) else round(value, 2)
+
+        if item in (0, 4, 8):
+            source = zip(info[f"ECG_{labels[item]}_Onsets"], info[f"ECG_{labels[item]}_Offsets"])
+            return (nan_to_zero(to_sec(end - begin)) for begin, end in source)
+        elif item in (1, 3, 5, 7, 9):
+            source = info[f"ECG_{labels[item]}_Peaks"]
+            return (0 if pd.isna(peak) else round(lead_signal[peak], 2) for peak in source)
+        elif item == 10:
+            source = zip(info["ECG_P_Offsets"], info["ECG_Q_Peaks"])
+            return (nan_to_zero(to_sec(end - begin)) for begin, end in source)
+        elif item == 11:
+            source = zip(info["ECG_S_Peaks"], info["ECG_T_Onsets"])
+            return (nan_to_zero(to_sec(end - begin)) for begin, end in source)
+        elif item == 12:
+            left = (0 if pd.isna(begin) else lead_signal[begin] for begin in info["ECG_R_Offsets"])
+            right = (0 if pd.isna(end) else lead_signal[end] for end in info["ECG_T_Onsets"])
+            return (round((begin + end) / 2, 2) for begin, end in zip(left, right))
+        elif item == 13:
+            source = zip(info["ECG_P_Onsets"], info["ECG_R_Onsets"])
+            return (nan_to_zero(to_sec(end - begin)) for begin, end in source)
+        elif item == 14:
+            source = zip(info["ECG_R_Offsets"], info["ECG_T_Offsets"])
+            return (nan_to_zero(to_sec(end - begin)) for begin, end in source)
+        elif item == 15:
+            left = (r if pd.isna(q) else q for q, r in zip(info["ECG_Q_Peaks"], info["ECG_R_Onsets"]))
+            right = (r if pd.isna(s) else s for s, r in zip(info["ECG_S_Peaks"], info["ECG_R_Offsets"]))
+            return (nan_to_zero(to_sec(end - begin)) for begin, end in zip(left, right))
+
+        return ("Нет данных.",)
 
     def show(self):
         super(ECGSimulatorWindow, self).show()
+        self.showMaximized()
 
     def closeEvent(self, a0):
         super(ECGSimulatorWindow, self).closeEvent(a0)
