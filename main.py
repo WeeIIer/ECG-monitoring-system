@@ -467,6 +467,7 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
             self.ecg_signal[lead] = pd.Series(value * 10 for value in lead_data)
 
         self.calculate_heart_rhythm()
+        self.calculate_heart_rate()
 
         nk.signal_plot(self.ecg_signal, subplots=True, sampling_rate=self.sampling_rate)
         plt.gca().set_xlabel("")
@@ -545,9 +546,9 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         return ("Нет данных.",)
 
     def calculate_heart_rhythm(self):
-        _, self.ecg_info = nk.ecg_process(self.ecg_signal["II"], sampling_rate=self.sampling_rate)
+        _, ecg_info = nk.ecg_process(self.ecg_signal["II"], sampling_rate=self.sampling_rate)
 
-        r_peaks = self.ecg_info["ECG_R_Peaks"]
+        r_peaks = ecg_info["ECG_R_Peaks"]
         rr = [r_peaks[r - 1] + r_peaks[r] for r in range(1, len(r_peaks))]
         average_rr = sum(rr) / len(rr)
         part_from_min = 1 - (average_rr - min(rr)) / average_rr
@@ -556,6 +557,11 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
             self.edit_heart_rhythm.setText("Регулярный")
         else:
             self.edit_heart_rhythm.setText("Нерегулярный")
+
+    def calculate_heart_rate(self):
+        _, ecg_info = nk.ecg_process(self.ecg_signal["II"], sampling_rate=self.sampling_rate)
+        rr = nk.ecg_rate(ecg_info["ECG_R_Peaks"], self.sampling_rate)
+        self.edit_heart_rate.setText(str(int(sum(rr) / len(rr))))
 
     def show(self):
         super(ECGSimulatorWindow, self).show()
