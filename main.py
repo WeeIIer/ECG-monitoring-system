@@ -443,16 +443,17 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
 
         self.sampling_rate = 1000
         self.duration = 10
-        self.ecg_data: pandas.DataFrame | None = None
-        self.current_lead = None
-        self.current_content_item = None
+        self.ecg_signal = pd.DataFrame()
+        self.ecg_info = pd.DataFrame()
+        self.lead = None
+        self.content_item = -1
 
     def on_item_clicked_list_content(self):
-        self.current_content_item = self.list_ecg_content.currentRow()
+        self.content_item = self.list_ecg_content.currentRow()
         self.ecg_process()
 
     def on_item_clicked_list_leads(self):
-        self.current_lead = self.list_ecg_leads.currentItem().text()
+        self.lead = self.list_ecg_leads.currentItem().text()
         self.ecg_process()
 
     def on_clicked_button_generate(self):
@@ -460,23 +461,16 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
 
     def load_ecg_data(self):
         ecg_mV = nk.ecg_simulate(duration=self.duration, method="multileads", sampling_rate=self.sampling_rate)
-        self.ecg_data = pd.DataFrame()
+        self.ecg_signal = pd.DataFrame()
 
         for lead, lead_data in ecg_mV.items():
-            self.ecg_data[lead] = pd.Series(value * 10 for value in lead_data)
-        print(self.ecg_data)
+            self.ecg_signal[lead] = pd.Series(value * 10 for value in lead_data)
 
-        nk.signal_plot(self.ecg_data, subplots=True, sampling_rate=self.sampling_rate)
+        self.calculate_heart_rhythm()
 
+        nk.signal_plot(self.ecg_signal, subplots=True, sampling_rate=self.sampling_rate)
         plt.gca().set_xlabel("")
         fig = plt.gcf()
-
-        # signals, info = nk.ecg_process(self.ecg_data["I"], sampling_rate=self.sampling_rate)
-        # ax = fig.get_axes()
-
-        # for p in info["ECG_P_Peaks"]:
-        #     print(p)
-        # ax[0].axvline(y=4, color='r', linestyle='-')
 
         fig.set_size_inches(20, 12, forward=True)
         fig.savefig("ECG_plot.png", transparent=True, bbox_inches="tight")
@@ -485,13 +479,14 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         self.label_plot.setPixmap(QPixmap("ECG_plot.png"))
 
     def ecg_process(self):
-        signals, info = nk.ecg_process(self.ecg_data[self.current_lead], sampling_rate=self.sampling_rate)
+        if isinstance(self.lead, str) and self.content_item > -1:
+            _, self.ecg_info = nk.ecg_process(self.ecg_signal[self.lead], sampling_rate=self.sampling_rate)
 
-        self.text_ecg_info.clear()
-        for value in self.ecg_info(info):
-            self.text_ecg_info.append(str(value))
+            self.text_ecg_info.clear()
+            for value in self.interpret_ecg():
+                self.text_ecg_info.append(str(value))
 
-    def ecg_info(self, info: pd.Series):
+    def interpret_ecg(self):
         """
            Items
         0  Зубец P [продолжительность]
@@ -512,41 +507,55 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         15 Комплекс QRS [продолжительность]
         """
 
-        item = self.current_content_item
         labels = "PPQQRRSSTT"
-        lead_signal = self.ecg_data[self.current_lead]
+        item = self.content_item
+        lead_signal = self.ecg_signal[self.lead]
+        info = self.ecg_info
 
-        to_sec = lambda Hz: Hz / self.sampling_rate
+        Hz_to_sec = lambda Hz: Hz / self.sampling_rate
         nan_to_zero = lambda value: 0 if pd.isna(value) else round(value, 2)
 
         if item in (0, 4, 8):
             source = zip(info[f"ECG_{labels[item]}_Onsets"], info[f"ECG_{labels[item]}_Offsets"])
-            return (nan_to_zero(to_sec(end - begin)) for begin, end in source)
+            return (nan_to_zero(Hz_to_sec(end - begin)) for begin, end in source)
         elif item in (1, 3, 5, 7, 9):
             source = info[f"ECG_{labels[item]}_Peaks"]
             return (0 if pd.isna(peak) else round(lead_signal[peak], 2) for peak in source)
         elif item == 10:
             source = zip(info["ECG_P_Offsets"], info["ECG_Q_Peaks"])
-            return (nan_to_zero(to_sec(end - begin)) for begin, end in source)
+            return (nan_to_zero(Hz_to_sec(end - begin)) for begin, end in source)
         elif item == 11:
             source = zip(info["ECG_S_Peaks"], info["ECG_T_Onsets"])
-            return (nan_to_zero(to_sec(end - begin)) for begin, end in source)
+            return (nan_to_zero(Hz_to_sec(end - begin)) for begin, end in source)
         elif item == 12:
             left = (0 if pd.isna(begin) else lead_signal[begin] for begin in info["ECG_R_Offsets"])
             right = (0 if pd.isna(end) else lead_signal[end] for end in info["ECG_T_Onsets"])
             return (round((begin + end) / 2, 2) for begin, end in zip(left, right))
         elif item == 13:
             source = zip(info["ECG_P_Onsets"], info["ECG_R_Onsets"])
-            return (nan_to_zero(to_sec(end - begin)) for begin, end in source)
+            return (nan_to_zero(Hz_to_sec(end - begin)) for begin, end in source)
         elif item == 14:
             source = zip(info["ECG_R_Offsets"], info["ECG_T_Offsets"])
-            return (nan_to_zero(to_sec(end - begin)) for begin, end in source)
+            return (nan_to_zero(Hz_to_sec(end - begin)) for begin, end in source)
         elif item == 15:
             left = (r if pd.isna(q) else q for q, r in zip(info["ECG_Q_Peaks"], info["ECG_R_Onsets"]))
             right = (r if pd.isna(s) else s for s, r in zip(info["ECG_S_Peaks"], info["ECG_R_Offsets"]))
-            return (nan_to_zero(to_sec(end - begin)) for begin, end in zip(left, right))
+            return (nan_to_zero(Hz_to_sec(end - begin)) for begin, end in zip(left, right))
 
         return ("Нет данных.",)
+
+    def calculate_heart_rhythm(self):
+        _, self.ecg_info = nk.ecg_process(self.ecg_signal["II"], sampling_rate=self.sampling_rate)
+
+        r_peaks = self.ecg_info["ECG_R_Peaks"]
+        rr = [r_peaks[r - 1] + r_peaks[r] for r in range(1, len(r_peaks))]
+        average_rr = sum(rr) / len(rr)
+        part_from_min = 1 - (average_rr - min(rr)) / average_rr
+        part_from_max = 1 - (max(rr) - average_rr) / average_rr
+        if part_from_min <= 0.1 or part_from_max <= 0.1:
+            self.edit_heart_rhythm.setText("Регулярный")
+        else:
+            self.edit_heart_rhythm.setText("Нерегулярный")
 
     def show(self):
         super(ECGSimulatorWindow, self).show()
