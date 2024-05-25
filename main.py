@@ -526,7 +526,7 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
 
             self.calculate_heart_rhythm()
             self.calculate_heart_rate()
-            # self.calculate_heart_axis()
+            self.calculate_heart_axis()
 
             self.list_ecg_leads.setCurrentRow(-1)
             self.list_ecg_content.setCurrentRow(-1)
@@ -632,7 +632,9 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
     def calculate_heart_rate(self):
         _, ecg_info = nk.ecg_process(self.ecg_signal["II"], sampling_rate=self.sampling_rate)
         rr = nk.ecg_rate(ecg_info["ECG_R_Peaks"], self.sampling_rate)
-        self.edit_heart_rate.setText(str(int(sum(rr) / len(rr))))
+
+        result = round(sum(rr) / len(rr), 0)
+        self.edit_heart_rate.setText(str(int(result)))
 
     def calculate_heart_axis(self):
         u = []
@@ -642,8 +644,8 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
             u.append(sum(self.ecg_signal[lead][r] for r in r_peaks) / len(r_peaks))
         u_3, u_1 = map(lambda value: value / 10, u)
 
-        print(u)
-        print(math.degrees(math.tan(1 / (math.sqrt(3) * (2 * u_3 / u_1 + 1)))))
+        result = round(math.degrees(math.tan(1 / (math.sqrt(3) * (2 * u_3 / u_1 + 1)))), 0)
+        self.edit_heart_axis.setText(str(int(result)))
 
     def show(self):
         super(ECGSimulatorWindow, self).show()
