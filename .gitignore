@@ -2,10 +2,9 @@
 .idea/
 __pycache__/
 
-# Шаблоны
-*.lp
+# Типы
+*.npy
 
 # Файлы
 fig.png
 ECG_plot.png
-

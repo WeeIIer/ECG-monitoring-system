@@ -1,3 +1,5 @@
+import math
+
 import matplotlib.axes
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -438,8 +440,9 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         self.button_generate.clicked.connect(self.on_clicked_button_generate)
         self.button_exit.clicked.connect(self.close)
 
-        self.list_ecg_content.itemClicked.connect(self.on_item_clicked_list_content)
         self.list_ecg_leads.itemClicked.connect(self.on_item_clicked_list_leads)
+        self.list_ecg_content.itemClicked.connect(self.on_item_clicked_list_content)
+        self.list_ecg_info.itemClicked.connect(self.on_item_clicked_list_ecg_info)
 
         self.sampling_rate = 1000
         self.duration = 10
@@ -448,31 +451,100 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         self.lead = None
         self.content_item = -1
 
+    def on_item_clicked_list_leads(self):
+        self.lead = self.list_ecg_leads.currentItem().text()
+        self.ecg_process()
+
     def on_item_clicked_list_content(self):
         self.content_item = self.list_ecg_content.currentRow()
         self.ecg_process()
 
-    def on_item_clicked_list_leads(self):
-        self.lead = self.list_ecg_leads.currentItem().text()
-        self.ecg_process()
+    def on_item_clicked_list_ecg_info(self):
+        labels = "PPQQRRSSTT"
+        item = self.content_item
+        i = self.list_ecg_info.currentRow()
+        info = self.ecg_info
+        vertical_borders = ()
+
+        if item in (0, 4, 8):
+            vertical_borders = (info[f"ECG_{labels[item]}_Onsets"][i], info[f"ECG_{labels[item]}_Offsets"][i])
+        elif item in (1, 3, 5, 7, 9):
+            vertical_borders = (info[f"ECG_{labels[item]}_Peaks"][i],)
+        elif item == 10:
+            vertical_borders = (info["ECG_P_Offsets"][i], info["ECG_Q_Peaks"][i])
+        elif item == (11, 12):
+            vertical_borders = (info["ECG_S_Peaks"][i], info["ECG_T_Onsets"][i])
+        elif item == 13:
+            vertical_borders = (info["ECG_P_Onsets"][i], info["ECG_R_Onsets"][i])
+        elif item == 14:
+            vertical_borders = (info["ECG_R_Offsets"][i], info["ECG_T_Offsets"][i])
+        elif item == 15:
+            left = tuple(r if pd.isna(q) else q for q, r in zip(info["ECG_Q_Peaks"], info["ECG_R_Onsets"]))
+            right = tuple(r if pd.isna(s) else s for s, r in zip(info["ECG_S_Peaks"], info["ECG_R_Offsets"]))
+            vertical_borders = (left[i], right[i])
+
+        self.plot(map(lambda x: x / self.sampling_rate, vertical_borders))
 
     def on_clicked_button_generate(self):
         self.load_ecg_data()
 
     def load_ecg_data(self):
-        ecg_mV = nk.ecg_simulate(duration=self.duration, method="multileads", sampling_rate=self.sampling_rate)
-        self.ecg_signal = pd.DataFrame()
+        try:
+            # # number = np.random.randint(0, 4999)
+            # # print(f"sample # {number}...")
+            # # data = np.load("sim_ecg_data.npy")
+            # # leads = ("I", "II", "III", "aVR", "aVL", "aVF", *(f"V{i}" for i in range(1, 7)))
+            # # ecg_mV = data[number]
+            # #
+            # #
+            # # for lead, lead_data in zip(leads, ecg_mV):
+            # #     self.ecg_signal[lead] = pd.Series(value * 10 for value in lead_data)
+            # #
+            # # print(self.ecg_signal)
+            #
+            # # Normal parameters (used by default)
+            # # ===================================
+            # # t, the starting position along the circle of each interval in radius
+            # ti = np.array((-70, -15, 0, 15, 100))
+            # # a, the amplitude of each spike
+            # ai = np.array((1.2, -5, 30, -7.5, 0.75))
+            # # b, the width of each spike
+            # bi = np.array((0.25, 0.1, 0.1, 0.1, 0.4))
+            #
+            # # Add noise
+            # # ===============
+            # ti = np.random.normal(ti, np.ones(5) * 3)
+            # ai = np.random.normal(ai, np.abs(ai / 5))
+            # bi = np.random.normal(bi, np.abs(bi / 5))
+            #
+            # ecg_mV = nk.ecg_simulate(duration=self.duration, method="multileads", sampling_rate=self.sampling_rate, ti=ti, ai=ai, bi=bi)
+            ecg_mV = nk.ecg_simulate(duration=self.duration, method="multileads", sampling_rate=self.sampling_rate)
+            self.ecg_signal = pd.DataFrame()
 
-        for lead, lead_data in ecg_mV.items():
-            self.ecg_signal[lead] = pd.Series(value * 10 for value in lead_data)
+            for lead, lead_data in ecg_mV.items():
+                self.ecg_signal[lead] = pd.Series(value * 10 for value in lead_data)
 
-        self.calculate_heart_rhythm()
-        self.calculate_heart_rate()
+            self.calculate_heart_rhythm()
+            self.calculate_heart_rate()
+            # self.calculate_heart_axis()
 
+            self.list_ecg_leads.setCurrentRow(-1)
+            self.list_ecg_content.setCurrentRow(-1)
+            self.list_ecg_info.clear()
+
+            self.plot()
+        except Exception:
+            self.load_ecg_data()
+
+    def plot(self, vertical_borders=()):
         nk.signal_plot(self.ecg_signal, subplots=True, sampling_rate=self.sampling_rate)
         plt.gca().set_xlabel("")
-        fig = plt.gcf()
 
+        if vertical_borders:
+            for x in vertical_borders:
+                plt.gcf().get_axes()[self.list_ecg_leads.currentRow()].axvline(x=x, c="red")
+
+        fig = plt.gcf()
         fig.set_size_inches(20, 12, forward=True)
         fig.savefig("ECG_plot.png", transparent=True, bbox_inches="tight")
 
@@ -483,9 +555,8 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         if isinstance(self.lead, str) and self.content_item > -1:
             _, self.ecg_info = nk.ecg_process(self.ecg_signal[self.lead], sampling_rate=self.sampling_rate)
 
-            self.text_ecg_info.clear()
-            for value in self.interpret_ecg():
-                self.text_ecg_info.append(str(value))
+            self.list_ecg_info.clear()
+            self.list_ecg_info.addItems(map(str, self.interpret_ecg()))
 
     def interpret_ecg(self):
         """
@@ -562,6 +633,17 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         _, ecg_info = nk.ecg_process(self.ecg_signal["II"], sampling_rate=self.sampling_rate)
         rr = nk.ecg_rate(ecg_info["ECG_R_Peaks"], self.sampling_rate)
         self.edit_heart_rate.setText(str(int(sum(rr) / len(rr))))
+
+    def calculate_heart_axis(self):
+        u = []
+        for lead in ("III", "I"):
+            _, ecg_info = nk.ecg_process(self.ecg_signal[lead], sampling_rate=self.sampling_rate)
+            r_peaks = [r for r in ecg_info["ECG_R_Peaks"] if not pd.isna(r)]
+            u.append(sum(self.ecg_signal[lead][r] for r in r_peaks) / len(r_peaks))
+        u_3, u_1 = map(lambda value: value / 10, u)
+
+        print(u)
+        print(math.degrees(math.tan(1 / (math.sqrt(3) * (2 * u_3 / u_1 + 1)))))
 
     def show(self):
         super(ECGSimulatorWindow, self).show()
