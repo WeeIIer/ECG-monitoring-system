@@ -438,6 +438,7 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         self.setupUi(self)
 
         self.button_generate.clicked.connect(self.on_clicked_button_generate)
+        self.button_save.clicked.connect(self.on_clicked_button_save)
         self.button_exit.clicked.connect(self.close)
 
         self.list_ecg_leads.itemClicked.connect(self.on_item_clicked_list_leads)
@@ -450,6 +451,23 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         self.ecg_info = pd.DataFrame()
         self.lead = None
         self.content_item = -1
+
+    def on_clicked_button_save(self):
+        leads = [self.list_ecg_leads.item(i).text() for i in range(12)]
+        content_count = self.list_ecg_content.count()
+
+        export_data = []
+        for lead in leads:
+            self.lead = lead
+            export_packet = []
+            for item in range(content_count):
+                self.content_item = item
+                _, self.ecg_info = nk.ecg_process(self.ecg_signal[self.lead], sampling_rate=self.sampling_rate)
+                data = list(0 if isinstance(value, str) else value * 1000 for value in self.interpret_ecg())
+                export_packet.append(math.ceil(sum(data) / len(data)))
+                print(lead, item, export_packet[-1])
+            export_data.append(export_packet)
+        # print(*export_data, sep='\n')
 
     def on_item_clicked_list_leads(self):
         self.lead = self.list_ecg_leads.currentItem().text()
@@ -633,8 +651,8 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         _, ecg_info = nk.ecg_process(self.ecg_signal["II"], sampling_rate=self.sampling_rate)
         rr = nk.ecg_rate(ecg_info["ECG_R_Peaks"], self.sampling_rate)
 
-        result = round(sum(rr) / len(rr), 0)
-        self.edit_heart_rate.setText(str(int(result)))
+        result = sum(rr) / len(rr)
+        self.edit_heart_rate.setText(str(math.ceil(result)))
 
     def calculate_heart_axis(self):
         u = []
@@ -644,8 +662,8 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
             u.append(sum(self.ecg_signal[lead][r] for r in r_peaks) / len(r_peaks))
         u_3, u_1 = map(lambda value: value / 10, u)
 
-        result = round(math.degrees(math.tan(1 / (math.sqrt(3) * (2 * u_3 / u_1 + 1)))), 0)
-        self.edit_heart_axis.setText(str(int(result)))
+        result = math.degrees(math.tan(1 / (math.sqrt(3) * (2 * u_3 / u_1 + 1))))
+        self.edit_heart_axis.setText(str(math.ceil(result)))
 
     def show(self):
         super(ECGSimulatorWindow, self).show()
