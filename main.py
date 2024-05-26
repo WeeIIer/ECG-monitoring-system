@@ -376,17 +376,18 @@ class ControllerWindow(QWidget, controller_window_form.Ui_controller_window):
 
         self.button_calculate.clicked.connect(self.on_clicked_button_calculate)
         self.button_ecg_simulator.clicked.connect(lambda: ecg_simulator_window.show())
-        self.button_save.clicked.connect(self.on_clicked_button_save)
+        self.button_load.clicked.connect(self.on_clicked_button_load)
         self.button_exit.clicked.connect(self.close)
 
         self.combo_add_attribute.currentIndexChanged.connect(self.on_index_changed_combo_add_attribute)
         self.combo_add_output_attribute.currentIndexChanged.connect(self.on_index_changed_combo_add_output_attribute)
 
-    def on_clicked_button_save(self):
-        pass
-
     def on_clicked_button_calculate(self):
         CURRENT_PROJECT.show()
+
+    def on_clicked_button_load(self):
+        input_attributes = [attr.lp.title for attr in CURRENT_PROJECT.attributes]
+        print(type(CURRENT_PROJECT.attributes[0].set_slider_x_axis_value(5)))
 
     def on_index_changed_combo_add_attribute(self):
         i = self.combo_add_attribute.currentIndex()
@@ -456,20 +457,33 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
         leads = [self.list_ecg_leads.item(i).text() for i in range(12)]
         content_count = self.list_ecg_content.count()
 
+        # export_data = []
+        # for lead in leads:
+        #     self.lead = lead
+        #     export_packet = []
+        #     for item in range(content_count):
+        #         self.content_item = item
+        #         _, self.ecg_info = nk.ecg_process(self.ecg_signal[self.lead], sampling_rate=self.sampling_rate)
+        #         data = list(value * 1000 for value in self.interpret_ecg() if not isinstance(value, str) and value)
+        #         export_packet.append(math.ceil(sum(data) / len(data)) if data else 0)
+        #         # print(lead, item, export_packet[-1])
+        #     export_data.append(export_packet)
+
         export_data = []
         for lead in leads:
             self.lead = lead
-            export_packet = []
             for item in range(content_count):
                 self.content_item = item
                 _, self.ecg_info = nk.ecg_process(self.ecg_signal[self.lead], sampling_rate=self.sampling_rate)
+                title = f"({lead}) {self.list_ecg_content.item(item).text()}"
                 data = list(value * 1000 for value in self.interpret_ecg() if not isinstance(value, str) and value)
-                export_packet.append(math.ceil(sum(data) / len(data)) if data else 0)
-                # print(lead, item, export_packet[-1])
-            export_data.append(export_packet)
+                export_data.append((title, math.ceil(sum(data) / len(data)) if data else 0))
+        export_data.append(("Сердечный ритм", self.edit_heart_rhythm.text()))
+        export_data.append(("ЧСС", int(self.edit_heart_rate.text())))
+        export_data.append(("ЭОС", int(self.edit_heart_axis.text())))
 
         # print(*export_data, sep='\n')
-        with open("exported_ECG.csv", "w", newline="") as file:
+        with open("exported_ECG.csv", "w", encoding="UTF-8", newline="") as file:
             csv.writer(file).writerows(export_data)
             alert_window.show(self, "Экспорт завершён успешно!")
 
@@ -690,7 +704,7 @@ class ECGSamplesWindow(QWidget, ecg_samples_window_form.Ui_ecg_samples_window):
             level_2 = self.list_level_2.currentItem().text()
             sample = self.list_samples.currentItem().text()
             record = wfdb.rdrecord(f"WFDBRecords/{level_1}/{level_2}/{sample}")
-            print(record.__dict__)
+            # print(record.__dict__)
 
             self.edit_id.setText(sample)
             self.edit_age.setText(record.comments[0].split()[-1])
