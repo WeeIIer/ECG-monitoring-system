@@ -612,10 +612,17 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
         _, ecg_info = nk.ecg_process(self.ecg_signal["II"], sampling_rate=self.sampling_rate)
 
         r_peaks = ecg_info["ECG_R_Peaks"]
-        rr = [r_peaks[r - 1] + r_peaks[r] for r in range(1, len(r_peaks))]
+        rr = [r_peaks[r] - r_peaks[r - 1] for r in range(1, len(r_peaks))]
         average_rr = sum(rr) / len(rr)
-        part_from_min = 1 - (average_rr - min(rr)) / average_rr
-        part_from_max = 1 - (max(rr) - average_rr) / average_rr
+        part_from_min = (average_rr - min(rr)) / average_rr
+        part_from_max = (max(rr) - average_rr) / average_rr
+
+        # print(r_peaks)
+        # print(rr)
+        # print(average_rr)
+        # print(part_from_min)
+        # print(part_from_max)
+
         if part_from_min <= 0.1 or part_from_max <= 0.1:
             self.edit_heart_rhythm.setText("Регулярный")
         else:
