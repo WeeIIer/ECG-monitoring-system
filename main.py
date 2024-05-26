@@ -1,11 +1,12 @@
+import csv
 import math
 
 import matplotlib.axes
 import matplotlib.pyplot as plt
 import pandas as pd
 import pandas.core.frame
+import wfdb
 
-import ecg_simulator_window
 from settings import *
 from objects import LP, PP, Dictionary, FuzzyProject
 from functions import create_plot
@@ -432,12 +433,13 @@ class ControllerWindow(QWidget, controller_window_form.Ui_controller_window):
         menu_window.show()
 
 
-class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
+class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_window):
     def __init__(self):
         super(ECGSimulatorWindow, self).__init__()
         self.setupUi(self)
 
         self.button_generate.clicked.connect(self.on_clicked_button_generate)
+        self.button_samples.clicked.connect(lambda: ecg_samples_window.show())
         self.button_save.clicked.connect(self.on_clicked_button_save)
         self.button_exit.clicked.connect(self.close)
 
@@ -445,8 +447,7 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         self.list_ecg_content.itemClicked.connect(self.on_item_clicked_list_content)
         self.list_ecg_info.itemClicked.connect(self.on_item_clicked_list_ecg_info)
 
-        self.sampling_rate = 1000
-        self.duration = 10
+        self.sampling_rate = 500
         self.ecg_signal = pd.DataFrame()
         self.ecg_info = pd.DataFrame()
         self.lead = None
@@ -467,7 +468,13 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
                 export_packet.append(math.ceil(sum(data) / len(data)))
                 print(lead, item, export_packet[-1])
             export_data.append(export_packet)
+
         # print(*export_data, sep='\n')
+        with open("exported_ECG.csv", "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(leads)
+            writer.writerows(export_data)
+            alert_window.show(self, "Экспорт завершён успешно!")
 
     def on_item_clicked_list_leads(self):
         self.lead = self.list_ecg_leads.currentItem().text()
@@ -508,39 +515,30 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
 
     def load_ecg_data(self):
         try:
-            # # number = np.random.randint(0, 4999)
-            # # print(f"sample # {number}...")
-            # # data = np.load("sim_ecg_data.npy")
-            # # leads = ("I", "II", "III", "aVR", "aVL", "aVF", *(f"V{i}" for i in range(1, 7)))
-            # # ecg_mV = data[number]
-            # #
-            # #
-            # # for lead, lead_data in zip(leads, ecg_mV):
-            # #     self.ecg_signal[lead] = pd.Series(value * 10 for value in lead_data)
-            # #
-            # # print(self.ecg_signal)
-            #
-            # # Normal parameters (used by default)
-            # # ===================================
-            # # t, the starting position along the circle of each interval in radius
-            # ti = np.array((-70, -15, 0, 15, 100))
-            # # a, the amplitude of each spike
-            # ai = np.array((1.2, -5, 30, -7.5, 0.75))
-            # # b, the width of each spike
-            # bi = np.array((0.25, 0.1, 0.1, 0.1, 0.4))
-            #
-            # # Add noise
-            # # ===============
-            # ti = np.random.normal(ti, np.ones(5) * 3)
-            # ai = np.random.normal(ai, np.abs(ai / 5))
-            # bi = np.random.normal(bi, np.abs(bi / 5))
-            #
-            # ecg_mV = nk.ecg_simulate(duration=self.duration, method="multileads", sampling_rate=self.sampling_rate, ti=ti, ai=ai, bi=bi)
-            ecg_mV = nk.ecg_simulate(duration=self.duration, method="multileads", sampling_rate=self.sampling_rate)
-            self.ecg_signal = pd.DataFrame()
+            record = wfdb.rdrecord("WFDBRecords/01/010/JS00002")
+            print(record.__dict__)
+            print(record.comments)
+            # print(record.__dict__)
+            # print(record.p_signal)
+            # print(record.p_signal[:, 0])
 
-            for lead, lead_data in ecg_mV.items():
-                self.ecg_signal[lead] = pd.Series(value * 10 for value in lead_data)
+            ecg_mV = pd.DataFrame()
+
+            for col, lead in enumerate(record.sig_name):
+                # ecg_mV[lead] = pd.Series(record.p_signal[:, col])
+                ecg_mV[lead] = nk.ecg_clean(record.p_signal[:, col], sampling_rate=self.sampling_rate)
+
+            print(ecg_mV)
+            # print(nk.ecg_clean(ecg_mV["I"], sampling_rate=self.sampling_rate))
+            self.ecg_signal = ecg_mV
+
+            # ecg_mV = nk.ecg_simulate(duration=10, method="multileads", sampling_rate=self.sampling_rate)
+            # self.ecg_signal = pd.DataFrame()
+            #
+            # for lead, lead_data in ecg_mV.items():
+            #     self.ecg_signal[lead] = pd.Series(value * 10 for value in lead_data)
+
+            # print(self.ecg_signal)
 
             self.calculate_heart_rhythm()
             self.calculate_heart_rate()
@@ -673,6 +671,20 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window.Ui_ecg_simulator_window):
         super(ECGSimulatorWindow, self).closeEvent(a0)
 
 
+class ECGSamplesWindow(QWidget, ecg_samples_window_form.Ui_ecg_samples_window):
+    def __init__(self):
+        super(ECGSamplesWindow, self).__init__()
+        self.setupUi(self)
+
+        self.button_exit.clicked.connect(self.close)
+
+    def show(self):
+        super(ECGSamplesWindow, self).show()
+
+    def closeEvent(self, a0):
+        super(ECGSamplesWindow, self).closeEvent(a0)
+
+
 app = QApplication(sys.argv)
 app.setStyle("fusion")
 app.setPalette(palette())
@@ -685,6 +697,7 @@ lp_editor_window = LPEditorWindow()
 pp_editor_window = PPEditorWindow()
 controller_window = ControllerWindow()
 ecg_simulator_window = ECGSimulatorWindow()
+ecg_samples_window = ECGSamplesWindow()
 
 menu_window.show()
 app.exec_()

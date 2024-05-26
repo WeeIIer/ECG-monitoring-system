@@ -11,6 +11,8 @@ import neurokit2 as nk
 import pandas as pd
 import math
 import numpy as np
+import csv
+import wfdb
 
 from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QHeaderView, QTableWidgetItem, QFileDialog, QCheckBox
 from PyQt5.QtGui import QPixmap, QPalette, QColor, QCursor, QFont
@@ -23,7 +25,8 @@ import dictionary_window as dictionary_window_form
 import lp_editor_window as lp_editor_window_form
 import pp_editor_window as pp_editor_window_form
 import controller_window as controller_window_form
-import ecg_simulator_window as simulator_window_form
+import ecg_simulator_window as ecg_simulator_window_form
+import ecg_samples_window as ecg_samples_window_form
 
 
 """
