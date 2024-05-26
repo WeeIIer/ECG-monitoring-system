@@ -652,14 +652,15 @@ class ECGSamplesWindow(QWidget, ecg_samples_window_form.Ui_ecg_samples_window):
         super(ECGSamplesWindow, self).__init__()
         self.setupUi(self)
 
-        self.button_open.clicked.connect(self.on_doubleClicked_list_samples)
+        self.button_open.clicked.connect(self.load_sample)
         self.button_exit.clicked.connect(self.close)
 
         self.list_level_1.itemClicked.connect(self.on_item_clicked_list_level_1)
         self.list_level_2.itemClicked.connect(self.on_item_clicked_list_level_2)
-        self.list_samples.doubleClicked.connect(self.on_doubleClicked_list_samples)
+        self.list_samples.doubleClicked.connect(self.load_sample)
 
         self.ecg_simulator: ECGSimulatorWindow | None = None
+        self.pathologies = []
 
         self.list_level_1.addItems(os.listdir("WFDBRecords/"))
 
@@ -680,16 +681,19 @@ class ECGSamplesWindow(QWidget, ecg_samples_window_form.Ui_ecg_samples_window):
             samples = {sample[:-4] for sample in os.listdir(f"WFDBRecords/{level_1}/{level_2}")[:-1]}
             self.list_samples.addItems(sorted(samples))
 
-    def on_doubleClicked_list_samples(self):
+    def load_sample(self):
         if self.list_samples.currentRow() > -1:
             level_1 = self.list_level_1.currentItem().text()
             level_2 = self.list_level_2.currentItem().text()
             sample = self.list_samples.currentItem().text()
             record = wfdb.rdrecord(f"WFDBRecords/{level_1}/{level_2}/{sample}")
+            print(record.__dict__)
 
             self.edit_id.setText(sample)
             self.edit_age.setText(record.comments[0].split()[-1])
             self.edit_sex.setText({"Male": "М", "Female": "Ж"}[record.comments[1].split()[-1]])
+
+            self.load_pathologies(record.comments[2])
 
             ecg_mm = pd.DataFrame()
             for col, lead in enumerate(record.sig_name):
@@ -699,9 +703,22 @@ class ECGSamplesWindow(QWidget, ecg_samples_window_form.Ui_ecg_samples_window):
             self.ecg_simulator.ecg_signal = ecg_mm
             self.ecg_simulator.load_ecg_data()
 
+    def load_pathologies(self, codes: str):
+        codes = codes.split()[-1].split(",")
+
+        self.text_pathologies.clear()
+        for code in codes:
+            for term in self.pathologies:
+                if code == term[2]:
+                    self.text_pathologies.append(f"{term[0]} ({term[1]})")
+
     def show(self, ecg_simulator=None):
         super(ECGSamplesWindow, self).show()
         self.ecg_simulator = ecg_simulator
+
+        with open("database-for-arrhythmia-study-1.0.0/ConditionNames_SNOMED-CT.csv", "r") as file:
+            self.pathologies = list(csv.reader(file))
+            del self.pathologies[0]
 
     def closeEvent(self, a0):
         super(ECGSamplesWindow, self).closeEvent(a0)

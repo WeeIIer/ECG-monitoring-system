@@ -2,7 +2,7 @@
 .idea/
 __pycache__/
 WFDBRecords/
-a-large-scale-12-lead-electrocardiogram-database-for-arrhythmia-study-1.0.0/
+database-for-arrhythmia-study-1.0.0/
 
 # Типы
 *.npy
