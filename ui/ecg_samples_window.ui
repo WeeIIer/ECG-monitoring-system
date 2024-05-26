@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>360</width>
-    <height>561</height>
+    <height>531</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,7 +29,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Список записей ЭКГ</string>
+   <string>База данных образцов ЭКГ</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <property name="spacing">
@@ -207,7 +207,7 @@
       </size>
      </property>
      <property name="title">
-      <string>Подробности</string>
+      <string>Текущий образец</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">
@@ -226,10 +226,34 @@
        <number>10</number>
       </property>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_21">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
         <property name="spacing">
-         <number>5</number>
+         <number>10</number>
         </property>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_25">
+          <property name="spacing">
+           <number>5</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_22">
+            <property name="text">
+             <string>Номер</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edit_id">
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_23">
           <property name="spacing">
@@ -254,29 +278,29 @@
           </item>
          </layout>
         </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="verticalLayout_24">
-        <property name="spacing">
-         <number>5</number>
-        </property>
         <item>
-         <widget class="QLabel" name="label_18">
-          <property name="text">
-           <string>Пол</string>
+         <layout class="QVBoxLayout" name="verticalLayout_24">
+          <property name="spacing">
+           <number>5</number>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="edit_sex">
-          <property name="contextMenuPolicy">
-           <enum>Qt::NoContextMenu</enum>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
+          <item>
+           <widget class="QLabel" name="label_18">
+            <property name="text">
+             <string>Пол</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="edit_sex">
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>

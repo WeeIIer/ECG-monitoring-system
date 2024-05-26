@@ -438,7 +438,6 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
         super(ECGSimulatorWindow, self).__init__()
         self.setupUi(self)
 
-        self.button_generate.clicked.connect(self.on_clicked_button_generate)
         self.button_samples.clicked.connect(lambda: ecg_samples_window.show(self))
         self.button_save.clicked.connect(self.on_clicked_button_save)
         self.button_exit.clicked.connect(self.close)
@@ -510,47 +509,24 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
 
         self.plot(map(lambda x: x / self.sampling_rate, vertical_borders))
 
-    def on_clicked_button_generate(self):
-        self.load_ecg_data()
-
     def load_ecg_data(self):
-        try:
-            # record = wfdb.rdrecord("WFDBRecords/01/010/JS00002")
-            # print(record.__dict__)
-            # print(record.comments)
-            # # print(record.__dict__)
-            # # print(record.p_signal)
-            # # print(record.p_signal[:, 0])
-            #
-            # ecg_mV = pd.DataFrame()
-            #
-            # for col, lead in enumerate(record.sig_name):
-            #     # ecg_mV[lead] = pd.Series(record.p_signal[:, col])
-            #     ecg_mV[lead] = nk.ecg_clean(record.p_signal[:, col], sampling_rate=self.sampling_rate)
-            #
-            # print(ecg_mV)
-            # # print(nk.ecg_clean(ecg_mV["I"], sampling_rate=self.sampling_rate))
-            # self.ecg_signal = ecg_mV
+        # ecg_mV = nk.ecg_simulate(duration=10, method="multileads", sampling_rate=self.sampling_rate)
+        # self.ecg_signal = pd.DataFrame()
+        #
+        # for lead, lead_data in ecg_mV.items():
+        #     self.ecg_signal[lead] = pd.Series(value * 10 for value in lead_data)
 
-            # ecg_mV = nk.ecg_simulate(duration=10, method="multileads", sampling_rate=self.sampling_rate)
-            # self.ecg_signal = pd.DataFrame()
-            #
-            # for lead, lead_data in ecg_mV.items():
-            #     self.ecg_signal[lead] = pd.Series(value * 10 for value in lead_data)
+        # print(self.ecg_signal)
 
-            # print(self.ecg_signal)
+        self.calculate_heart_rhythm()
+        self.calculate_heart_rate()
+        self.calculate_heart_axis()
 
-            self.calculate_heart_rhythm()
-            self.calculate_heart_rate()
-            self.calculate_heart_axis()
+        self.list_ecg_leads.setCurrentRow(-1)
+        self.list_ecg_content.setCurrentRow(-1)
+        self.list_ecg_info.clear()
 
-            self.list_ecg_leads.setCurrentRow(-1)
-            self.list_ecg_content.setCurrentRow(-1)
-            self.list_ecg_info.clear()
-
-            self.plot()
-        except Exception:
-            self.load_ecg_data()
+        self.plot()
 
     def plot(self, vertical_borders=()):
         nk.signal_plot(self.ecg_signal, subplots=True, sampling_rate=self.sampling_rate)
@@ -676,6 +652,7 @@ class ECGSamplesWindow(QWidget, ecg_samples_window_form.Ui_ecg_samples_window):
         super(ECGSamplesWindow, self).__init__()
         self.setupUi(self)
 
+        self.button_open.clicked.connect(self.on_doubleClicked_list_samples)
         self.button_exit.clicked.connect(self.close)
 
         self.list_level_1.itemClicked.connect(self.on_item_clicked_list_level_1)
@@ -704,21 +681,23 @@ class ECGSamplesWindow(QWidget, ecg_samples_window_form.Ui_ecg_samples_window):
             self.list_samples.addItems(sorted(samples))
 
     def on_doubleClicked_list_samples(self):
-        level_1 = self.list_level_1.currentItem().text()
-        level_2 = self.list_level_2.currentItem().text()
-        sample = self.list_samples.currentItem().text()
-        record = wfdb.rdrecord(f"WFDBRecords/{level_1}/{level_2}/{sample}")
+        if self.list_samples.currentRow() > -1:
+            level_1 = self.list_level_1.currentItem().text()
+            level_2 = self.list_level_2.currentItem().text()
+            sample = self.list_samples.currentItem().text()
+            record = wfdb.rdrecord(f"WFDBRecords/{level_1}/{level_2}/{sample}")
 
-        self.edit_age.setText(record.comments[0].split()[-1])
-        self.edit_sex.setText({"Male": "М", "Female": "Ж"}[record.comments[1].split()[-1]])
+            self.edit_id.setText(sample)
+            self.edit_age.setText(record.comments[0].split()[-1])
+            self.edit_sex.setText({"Male": "М", "Female": "Ж"}[record.comments[1].split()[-1]])
 
-        ecg_mm = pd.DataFrame()
-        for col, lead in enumerate(record.sig_name):
-            ecg_mV = nk.ecg_clean(record.p_signal[:, col], sampling_rate=self.ecg_simulator.sampling_rate)
-            ecg_mm[lead] = pd.Series(value * 10 for value in ecg_mV)
+            ecg_mm = pd.DataFrame()
+            for col, lead in enumerate(record.sig_name):
+                ecg_mV = nk.ecg_clean(record.p_signal[:, col], sampling_rate=self.ecg_simulator.sampling_rate)
+                ecg_mm[lead] = pd.Series(value * 10 for value in ecg_mV)
 
-        self.ecg_simulator.ecg_signal = ecg_mm
-        self.ecg_simulator.load_ecg_data()
+            self.ecg_simulator.ecg_signal = ecg_mm
+            self.ecg_simulator.load_ecg_data()
 
     def show(self, ecg_simulator=None):
         super(ECGSamplesWindow, self).show()
