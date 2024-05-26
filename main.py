@@ -617,12 +617,6 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
         part_from_min = (average_rr - min(rr)) / average_rr
         part_from_max = (max(rr) - average_rr) / average_rr
 
-        # print(r_peaks)
-        # print(rr)
-        # print(average_rr)
-        # print(part_from_min)
-        # print(part_from_max)
-
         if part_from_min <= 0.1 or part_from_max <= 0.1:
             self.edit_heart_rhythm.setText("Регулярный")
         else:
@@ -637,13 +631,13 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
 
     def calculate_heart_axis(self):
         u = []
-        for lead in ("III", "I"):
+        for lead in ("I", "III"):
             _, ecg_info = nk.ecg_process(self.ecg_signal[lead], sampling_rate=self.sampling_rate)
             r_peaks = [r for r in ecg_info["ECG_R_Peaks"] if not pd.isna(r)]
             u.append(sum(self.ecg_signal[lead][r] for r in r_peaks) / len(r_peaks))
-        u_3, u_1 = map(lambda value: value / 10, u)
+        u_1, u_3 = map(lambda value: value / 10, u)
 
-        result = math.degrees(math.tan(1 / (math.sqrt(3) * (2 * u_3 / u_1 + 1))))
+        result = math.degrees(math.atan(1 / math.sqrt(3) * (2 * u_3 / u_1 + 1)))
         self.edit_heart_axis.setText(str(math.ceil(result)))
 
     def show(self):
