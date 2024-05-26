@@ -10,3 +10,4 @@ Imports (`pip install ...`):
 - `pyqt5`  
 - `superqt`
 - `neurokit2`
+- `wfdb`
