@@ -463,16 +463,14 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
             for item in range(content_count):
                 self.content_item = item
                 _, self.ecg_info = nk.ecg_process(self.ecg_signal[self.lead], sampling_rate=self.sampling_rate)
-                data = list(0 if isinstance(value, str) else value * 1000 for value in self.interpret_ecg())
-                export_packet.append(math.ceil(sum(data) / len(data)))
-                print(lead, item, export_packet[-1])
+                data = list(value * 1000 for value in self.interpret_ecg() if not isinstance(value, str) and value)
+                export_packet.append(math.ceil(sum(data) / len(data)) if data else 0)
+                # print(lead, item, export_packet[-1])
             export_data.append(export_packet)
 
         # print(*export_data, sep='\n')
         with open("exported_ECG.csv", "w", newline="") as file:
-            writer = csv.writer(file)
-            writer.writerow(leads)
-            writer.writerows(export_data)
+            csv.writer(file).writerows(export_data)
             alert_window.show(self, "Экспорт завершён успешно!")
 
     def on_item_clicked_list_leads(self):
@@ -525,6 +523,7 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
         self.list_ecg_leads.setCurrentRow(-1)
         self.list_ecg_content.setCurrentRow(-1)
         self.list_ecg_info.clear()
+        self.edit_average_ecg_info.clear()
 
         self.plot()
 
@@ -549,6 +548,9 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
 
             self.list_ecg_info.clear()
             self.list_ecg_info.addItems(map(str, self.interpret_ecg()))
+
+            data = list(value for value in self.interpret_ecg() if not isinstance(value, str) and value)
+            self.edit_average_ecg_info.setText(str(round(sum(data) / len(data), 2)) if data else "")
 
     def interpret_ecg(self):
         """
