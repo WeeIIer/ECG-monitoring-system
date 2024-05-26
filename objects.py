@@ -525,6 +525,9 @@ class FuzzyProjectInputAttribute(FuzzyProjectAttribute):
 
         self.__set_connections()
 
+    def get_slider_x_axis_value(self):
+        return self._objects[2].value()
+
     def set_slider_x_axis_value(self, value: int):
         self._objects[2].setValue(value)
 

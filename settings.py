@@ -27,6 +27,7 @@ import pp_editor_window as pp_editor_window_form
 import controller_window as controller_window_form
 import ecg_simulator_window as ecg_simulator_window_form
 import ecg_samples_window as ecg_samples_window_form
+import controller_import_window as controller_import_window_form
 
 
 """

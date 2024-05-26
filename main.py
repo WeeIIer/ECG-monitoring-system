@@ -376,7 +376,7 @@ class ControllerWindow(QWidget, controller_window_form.Ui_controller_window):
 
         self.button_calculate.clicked.connect(self.on_clicked_button_calculate)
         self.button_ecg_simulator.clicked.connect(lambda: ecg_simulator_window.show())
-        self.button_load.clicked.connect(self.on_clicked_button_load)
+        self.button_load.clicked.connect(lambda: controller_import_window.show())
         self.button_exit.clicked.connect(self.close)
 
         self.combo_add_attribute.currentIndexChanged.connect(self.on_index_changed_combo_add_attribute)
@@ -384,10 +384,6 @@ class ControllerWindow(QWidget, controller_window_form.Ui_controller_window):
 
     def on_clicked_button_calculate(self):
         CURRENT_PROJECT.show()
-
-    def on_clicked_button_load(self):
-        input_attributes = [attr.lp.title for attr in CURRENT_PROJECT.attributes]
-        print(type(CURRENT_PROJECT.attributes[0].set_slider_x_axis_value(5)))
 
     def on_index_changed_combo_add_attribute(self):
         i = self.combo_add_attribute.currentIndex()
@@ -741,6 +737,68 @@ class ECGSamplesWindow(QWidget, ecg_samples_window_form.Ui_ecg_samples_window):
         super(ECGSamplesWindow, self).closeEvent(a0)
 
 
+class ControllerImportWindow(QWidget, controller_import_window_form.Ui_controller_import_window):
+    def __init__(self):
+        super(ControllerImportWindow, self).__init__()
+        self.setupUi(self)
+
+        self.button_apply.clicked.connect(self.on_clicked_button_apply)
+        # self.button_open.clicked.connect(self.load_sample)
+        self.button_exit.clicked.connect(self.close)
+
+        self.table_input_attributes.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.table_input_attributes.setColumnWidth(1, 80)
+
+        self.table_import.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.table_import.setColumnWidth(1, 80)
+
+        self.import_data = []
+
+    def on_clicked_button_apply(self):
+        i_input = self.table_input_attributes.currentRow()
+        i_import = self.table_import.currentRow()
+
+        if i_input > -1 and i_import > -1:
+            try:
+                new_input_value = int(self.import_data[i_import][1])
+                x_start = CURRENT_PROJECT.attributes[i_input].lp.x_start
+                x_stop = CURRENT_PROJECT.attributes[i_input].lp.x_stop
+                if x_start <= new_input_value <= x_stop:
+                    CURRENT_PROJECT.attributes[i_input].set_slider_x_axis_value(new_input_value)
+                    self.load_input_attributes()
+                else:
+                    alert_window.show(self, "Новое значение выходит из ОДЗ входного атрибута!")
+            except ValueError:
+                alert_window.show(self, "Присвоить входному атрибуту можно только целое значение!")
+
+    def load_input_attributes(self):
+        self.table_input_attributes.setRowCount(0)
+        for i, title in enumerate(attr.lp.title for attr in CURRENT_PROJECT.attributes):
+            self.table_input_attributes.insertRow(self.table_input_attributes.rowCount())
+
+            value = CURRENT_PROJECT.attributes[i].get_slider_x_axis_value()
+            self.table_input_attributes.setItem(i, 0, QTableWidgetItem(title))
+            self.table_input_attributes.setItem(i, 1, QTableWidgetItem(str(value)))
+
+    def load_import_data(self):
+        self.table_import.setRowCount(0)
+        with open("exported_ECG.csv", "r", encoding="UTF-8") as file:
+            self.import_data = list(csv.reader(file))
+            for i, row in enumerate(self.import_data):
+                self.table_import.insertRow(self.table_import.rowCount())
+                for j, col in enumerate(row):
+                    self.table_import.setItem(i, j, QTableWidgetItem(col))
+
+    def show(self):
+        super(ControllerImportWindow, self).show()
+
+        self.load_import_data()
+        self.load_input_attributes()
+
+    def closeEvent(self, a0):
+        super(ControllerImportWindow, self).closeEvent(a0)
+
+
 app = QApplication(sys.argv)
 app.setStyle("fusion")
 app.setPalette(palette())
@@ -754,6 +812,7 @@ pp_editor_window = PPEditorWindow()
 controller_window = ControllerWindow()
 ecg_simulator_window = ECGSimulatorWindow()
 ecg_samples_window = ECGSamplesWindow()
+controller_import_window = ControllerImportWindow()
 
 menu_window.show()
 app.exec_()
