@@ -71,6 +71,9 @@ class LP:
         del self.terms[i]
         self.update_terms()
 
+    def set_as_new(self):
+        self.id = 0
+
     def set_title(self, title: str):
         self.title = title
 

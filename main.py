@@ -166,6 +166,7 @@ class LPEditorWindow(QWidget, lp_editor_window_form.Ui_lp_editor_window):
         self.splitter_3.restoreState(SETTINGS.value("splitterSizes"))
 
         self.button_save.clicked.connect(self.on_clicked_button_save)
+        self.button_save_as.clicked.connect(self.on_clicked_button_save_as)
         self.button_exit.clicked.connect(self.close)
 
         self.list_terms.itemClicked.connect(self.on_item_clicked_list_terms)
@@ -184,6 +185,10 @@ class LPEditorWindow(QWidget, lp_editor_window_form.Ui_lp_editor_window):
             alert_window.show(self, "Сохранение прошло успешно!")
         else:
             alert_window.show(self, "Сохранение не удалось!")
+
+    def on_clicked_button_save_as(self):
+        CURRENT_LP.set_as_new()
+        self.on_clicked_button_save()
 
     def on_item_clicked_list_terms(self):
         i = self.list_terms.currentRow()
@@ -772,6 +777,7 @@ class ControllerImportWindow(QWidget, controller_import_window_form.Ui_controlle
                 if x_start <= new_input_value <= x_stop:
                     CURRENT_PROJECT.attributes[i_input].set_slider_x_axis_value(new_input_value)
                     self.load_input_attributes()
+                    self.table_input_attributes.selectRow(i_input)
                 else:
                     alert_window.show(self, "Новое значение выходит из ОДЗ входного атрибута!")
             except ValueError:

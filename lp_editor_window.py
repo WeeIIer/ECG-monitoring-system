@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'D:\VADIM\Python\SFedU\third_term\knowledge_representation\lab_2\ui\lp_editor_window.ui'
+# Form implementation generated from reading ui file 'D:\VADIM\Python\SFedU\diploma\ECG-monitoring-system\ui\lp_editor_window.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.10
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_lp_editor_window(object):
     def setupUi(self, lp_editor_window):
         lp_editor_window.setObjectName("lp_editor_window")
-        lp_editor_window.resize(1000, 700)
+        lp_editor_window.resize(1021, 700)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -59,6 +59,22 @@ class Ui_lp_editor_window(object):
         self.button_save.setIconSize(QtCore.QSize(24, 24))
         self.button_save.setObjectName("button_save")
         self.horizontalLayout_10.addWidget(self.button_save)
+        self.button_save_as = QtWidgets.QPushButton(self.groupBox_4)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.button_save_as.sizePolicy().hasHeightForWidth())
+        self.button_save_as.setSizePolicy(sizePolicy)
+        self.button_save_as.setMinimumSize(QtCore.QSize(150, 40))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        self.button_save_as.setFont(font)
+        self.button_save_as.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.button_save_as.setIconSize(QtCore.QSize(24, 24))
+        self.button_save_as.setObjectName("button_save_as")
+        self.horizontalLayout_10.addWidget(self.button_save_as)
         self.button_exit = QtWidgets.QPushButton(self.groupBox_4)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -353,6 +369,7 @@ class Ui_lp_editor_window(object):
         lp_editor_window.setWindowTitle(_translate("lp_editor_window", "Редактор лингвистической переменной"))
         self.groupBox_4.setTitle(_translate("lp_editor_window", "Панель управления"))
         self.button_save.setText(_translate("lp_editor_window", "Сохранить"))
+        self.button_save_as.setText(_translate("lp_editor_window", "Сохранить как ..."))
         self.button_exit.setText(_translate("lp_editor_window", "Закрыть"))
         self.groupBox.setTitle(_translate("lp_editor_window", "Основная информация"))
         self.label_15.setText(_translate("lp_editor_window", "Название"))
