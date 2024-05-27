@@ -450,6 +450,11 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
         self.content_item = -1
 
     def on_clicked_button_save(self):
+        export_path = QtWidgets.QFileDialog.getExistingDirectory(self, "Выбрать папку для экспорта", "./")
+        if not export_path or self.ecg_signal.empty:
+            alert_window.show(self, "Не выбран путь или не загружен ЭКГ-образец!")
+            return None
+
         leads = [self.list_ecg_leads.item(i).text() for i in range(12)]
         content_count = self.list_ecg_content.count()
 
@@ -479,7 +484,8 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
         export_data.append(("ЭОС", int(self.edit_heart_axis.text())))
 
         # print(*export_data, sep='\n')
-        with open("exported_ECG.csv", "w", encoding="UTF-8", newline="") as file:
+        export_path += f"/ЭКГ-образец ({datetime.now().strftime('%d.%m.%Y %H.%M.%S')}).csv"
+        with open(export_path, "w", encoding="UTF-8", newline="") as file:
             csv.writer(file).writerows(export_data)
             alert_window.show(self, "Экспорт завершён успешно!")
 
@@ -743,7 +749,7 @@ class ControllerImportWindow(QWidget, controller_import_window_form.Ui_controlle
         self.setupUi(self)
 
         self.button_apply.clicked.connect(self.on_clicked_button_apply)
-        # self.button_open.clicked.connect(self.load_sample)
+        self.button_open.clicked.connect(self.load_import_data)
         self.button_exit.clicked.connect(self.close)
 
         self.table_input_attributes.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
@@ -781,18 +787,20 @@ class ControllerImportWindow(QWidget, controller_import_window_form.Ui_controlle
             self.table_input_attributes.setItem(i, 1, QTableWidgetItem(str(value)))
 
     def load_import_data(self):
-        self.table_import.setRowCount(0)
-        with open("exported_ECG.csv", "r", encoding="UTF-8") as file:
-            self.import_data = list(csv.reader(file))
-            for i, row in enumerate(self.import_data):
-                self.table_import.insertRow(self.table_import.rowCount())
-                for j, col in enumerate(row):
-                    self.table_import.setItem(i, j, QTableWidgetItem(col))
+        import_path, _ = QFileDialog.getOpenFileName(self, "Выбрать импортируемый файл", "./", "*.csv")
+
+        if import_path:
+            self.table_import.setRowCount(0)
+            with open(import_path, "r", encoding="UTF-8") as file:
+                self.import_data = list(csv.reader(file))
+                for i, row in enumerate(self.import_data):
+                    self.table_import.insertRow(self.table_import.rowCount())
+                    for j, col in enumerate(row):
+                        self.table_import.setItem(i, j, QTableWidgetItem(col))
 
     def show(self):
         super(ControllerImportWindow, self).show()
 
-        self.load_import_data()
         self.load_input_attributes()
 
     def closeEvent(self, a0):
