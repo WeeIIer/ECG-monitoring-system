@@ -1,12 +1,3 @@
-import csv
-import math
-
-import matplotlib.axes
-import matplotlib.pyplot as plt
-import pandas as pd
-import pandas.core.frame
-import wfdb
-
 from settings import *
 from objects import LP, PP, Dictionary, FuzzyProject
 from functions import create_plot
@@ -788,7 +779,7 @@ class ControllerImportWindow(QWidget, controller_import_window_form.Ui_controlle
         for i, title in enumerate(attr.lp.title for attr in CURRENT_PROJECT.attributes):
             self.table_input_attributes.insertRow(self.table_input_attributes.rowCount())
 
-            value = CURRENT_PROJECT.attributes[i].get_slider_x_axis_value()
+            value = CURRENT_PROJECT.attributes[i].slider_x_axis_value()
             self.table_input_attributes.setItem(i, 0, QTableWidgetItem(title))
             self.table_input_attributes.setItem(i, 1, QTableWidgetItem(str(value)))
 

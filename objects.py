@@ -9,7 +9,7 @@ class QFuzzyLabel(QtWidgets.QLabel):
     def resizeEvent(self, a0):
         super(QFuzzyLabel, self).resizeEvent(a0)
 
-        height = int(self.width() * 0.4)
+        height = int(self.width() * 0.3)
         self.setMinimumHeight(height)
         self.setMaximumHeight(height)
 
@@ -174,7 +174,6 @@ class Attribute:
         self.__combo: tuple[QtWidgets.QComboBox, ...]
 
         self.widget: QWidget = self.__create_widget()
-        self.is_loaded = False
         self.__set_combo_connections()
 
     def expression(self, first_place=None, term_accuracy=None) -> str:
@@ -521,14 +520,14 @@ class FuzzyProjectAttribute:
 class FuzzyProjectInputAttribute(FuzzyProjectAttribute):
     def __init__(self, lp: LP):
         FuzzyProjectAttribute.__init__(self, lp)
-        self.widget = self._create_attribute_widget()
+        self.widget: QWidget = self._create_attribute_widget()
 
         self.terms_accuracy: list[tuple[float, float]] = []  # x and y
         self.terms_indices: list[tuple[int, int]] = []  # lp_id and term_id
 
         self.__set_connections()
 
-    def get_slider_x_axis_value(self):
+    def slider_x_axis_value(self) -> int:
         return self._objects[2].value()
 
     def set_slider_x_axis_value(self, value: int):
