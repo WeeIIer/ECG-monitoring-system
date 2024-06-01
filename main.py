@@ -698,25 +698,28 @@ class ECGSamplesWindow(QWidget, ecg_samples_window_form.Ui_ecg_samples_window):
 
     def load_sample(self):
         if self.list_samples.currentRow() > -1:
-            level_1 = self.list_level_1.currentItem().text()
-            level_2 = self.list_level_2.currentItem().text()
-            sample = self.list_samples.currentItem().text()
-            record = wfdb.rdrecord(f"WFDBRecords/{level_1}/{level_2}/{sample}")
-            # print(record.__dict__)
+            try:
+                level_1 = self.list_level_1.currentItem().text()
+                level_2 = self.list_level_2.currentItem().text()
+                sample = self.list_samples.currentItem().text()
+                record = wfdb.rdrecord(f"WFDBRecords/{level_1}/{level_2}/{sample}")
+                # print(record.__dict__)
 
-            self.edit_id.setText(sample)
-            self.edit_age.setText(record.comments[0].split()[-1])
-            self.edit_sex.setText({"Male": "М", "Female": "Ж"}[record.comments[1].split()[-1]])
+                self.edit_id.setText(sample)
+                self.edit_age.setText(record.comments[0].split()[-1])
+                self.edit_sex.setText({"Male": "М", "Female": "Ж"}[record.comments[1].split()[-1]])
 
-            self.load_pathologies(record.comments[2])
+                self.load_pathologies(record.comments[2])
 
-            ecg_mm = pd.DataFrame()
-            for col, lead in enumerate(record.sig_name):
-                ecg_mV = nk.ecg_clean(record.p_signal[:, col], sampling_rate=self.ecg_simulator.sampling_rate)
-                ecg_mm[lead] = pd.Series(value * 10 for value in ecg_mV)
+                ecg_mm = pd.DataFrame()
+                for col, lead in enumerate(record.sig_name):
+                    ecg_mV = nk.ecg_clean(record.p_signal[:, col], sampling_rate=self.ecg_simulator.sampling_rate)
+                    ecg_mm[lead] = pd.Series(value * 10 for value in ecg_mV)
 
-            self.ecg_simulator.ecg_signal = ecg_mm
-            self.ecg_simulator.load_ecg_data()
+                self.ecg_simulator.ecg_signal = ecg_mm
+                self.ecg_simulator.load_ecg_data()
+            except Exception:
+                alert_window.show(self, "Не удалось загрузить выбранный образец!")
 
     def load_pathologies(self, codes: str):
         codes = codes.split()[-1].split(",")
