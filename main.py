@@ -525,7 +525,7 @@ class ECGSimulatorWindow(QWidget, ecg_simulator_window_form.Ui_ecg_simulator_win
         #
         # for lead, lead_data in ecg_mV.items():
         #     self.ecg_signal[lead] = pd.Series(value * 10 for value in lead_data)
-
+        #
         # print(self.ecg_signal)
 
         self.calculate_heart_rhythm()
